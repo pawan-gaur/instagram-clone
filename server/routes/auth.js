@@ -15,7 +15,7 @@ router.post("/singup", (req, res) => {
   if (!email || !password || !name) {
     return res.status(422).json({ error: "Please add the required value" });
   }
-  //res.json({ message: "Successfully Saved" });
+
   User.findOne({ email: email })
     .then((savedUser) => {
       if (savedUser) {
@@ -41,6 +41,31 @@ router.post("/singup", (req, res) => {
     .catch((err) => {
       console.log(err);
     });
+});
+
+router.post("/login", (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return res.status(422).json({ error: "Please provide email or password" });
+  }
+
+  User.findOne({ email: email }).then((savedUser) => {
+    if (!savedUser) {
+      return res.status(422).json({ error: "Invalid Email or password" });
+    }
+    bcrypt
+      .compare(password, savedUser.password)
+      .then((doMatch) => {
+        if (doMatch) {
+          res.json({ message: "Successfully login" });
+        } else {
+          return res.status(422).json({ error: "Invalid Email or password" });
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  });
 });
 
 module.exports = router;
