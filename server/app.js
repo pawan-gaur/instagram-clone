@@ -6,6 +6,9 @@ const { MONGODB } = require("./keys");
 
 require("./models/user");
 
+app.use(express.json());
+app.use(require("./routes/auth"));
+
 mongoose.connect(MONGODB, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
