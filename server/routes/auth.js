@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
 
 const User = mongoose.model("User");
 
@@ -18,22 +19,24 @@ router.post("/singup", (req, res) => {
   User.findOne({ email: email })
     .then((savedUser) => {
       if (savedUser) {
-        return res.status(422).json({ error: "User already exists : ", email });
+        return res.status(422).json({ error: "User already exists", email });
       }
-      const user = new User({
-        email,
-        password,
-        name,
-      });
-
-      user
-        .save()
-        .then((user) => {
-          res.json({ message: "Successfully Saved" });
-        })
-        .catch((err) => {
-          console.log(err);
+      bcrypt.hash(password, 12).then((hashedPassword) => {
+        const user = new User({
+          email,
+          password: hashedPassword,
+          name,
         });
+
+        user
+          .save()
+          .then((user) => {
+            res.json({ message: "Successfully Saved" });
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      });
     })
     .catch((err) => {
       console.log(err);
